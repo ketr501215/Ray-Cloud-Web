@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ray 雲端教材系統 | raywang.com</title>
+    <style>
+/* 全域樣式 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --primary-color: #2c3e50; --secondary-color: #3498db; --accent-color: #e74c3c;
+    --bg-color: #ecf0f1; --text-color: #34495e; --card-bg: #ffffff;
+    --border-radius: 8px; --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+body {
+    font-family: 'Microsoft JhengHei', '微軟正黑體', 'PingFang TC', sans-serif;
+    line-height: 1.6; color: var(--text-color); background-color: var(--bg-color);
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white; padding: 2rem 0; box-shadow: var(--shadow);
+    position: sticky; top: 0; z-index: 1000;
+}
+.header-content { text-align: center; margin-bottom: 1.5rem; }
+header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700; }
+.subtitle { font-size: 1rem; opacity: 0.9; }
+nav ul { list-style: none; display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; }
+nav a {
+    color: white; text-decoration: none; padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius); transition: var(--transition);
+    font-weight: 500; display: block;
+}
+nav a:hover, nav a.active { background-color: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+main { padding: 3rem 0; min-height: calc(100vh - 300px); }
+.content-section { display: none; animation: fadeIn 0.5s ease; }
+.content-section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.content-section h2 {
+    font-size: 2rem; color: var(--primary-color); margin-bottom: 2rem;
+    padding-bottom: 1rem; border-bottom: 3px solid var(--secondary-color);
+}
+.course-grid, .research-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; margin-top: 2rem;
+}
+.course-card, .research-card {
+    background: var(--card-bg); padding: 1.5rem; border-radius: var(--border-radius);
+    box-shadow: var(--shadow); transition: var(--transition);
+}
+.course-card:hover, .research-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); }
+.course-card h3, .research-card h3 {
+    color: var(--secondary-color); font-size: 1.5rem; margin-bottom: 1rem;
+    padding-bottom: 0.5rem; border-bottom: 2px solid var(--bg-color);
+}
+.course-list, .research-list { list-style: none; }
+.course-list li, .research-list li {
+    padding: 0.75rem; margin-bottom: 0.5rem; background-color: var(--bg-color);
+    border-radius: 4px; transition: var(--transition); cursor: pointer;
+}
+.course-list li:hover, .research-list li:hover {
+    background-color: var(--secondary-color); color: white; transform: translateX(5px);
+}
+.project-container {
+    background: var(--card-bg); padding: 2rem; border-radius: var(--border-radius);
+    box-shadow: var(--shadow); margin-top: 2rem;
+}
+.project-item {
+    padding: 1.5rem; margin-bottom: 1rem; background-color: var(--bg-color);
+    border-radius: var(--border-radius); border-left: 4px solid var(--secondary-color);
+}
+.project-item h3 { color: var(--primary-color); margin-bottom: 0.5rem; }
+.project-item p { color: var(--text-color); line-height: 1.8; }
+.placeholder { text-align: center; color: #95a5a6; font-style: italic; padding: 3rem; }
+.growth-categories { display: grid; gap: 2rem; }
+.growth-category {
+    background: var(--card-bg); padding: 2rem; border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+.growth-category h3 {
+    color: var(--secondary-color); font-size: 1.8rem; margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem; border-bottom: 2px solid var(--bg-color);
+}
+.growth-items { display: grid; gap: 1rem; }
+.growth-item {
+    padding: 1rem 1.5rem; background-color: var(--bg-color); border-radius: 4px;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: var(--transition); cursor: pointer;
+    border-left: 3px solid transparent;
+    position: relative;
+}
+.growth-item::after {
+    content: '📖';
+    position: absolute;
+    right: 4rem;
+    opacity: 0;
+    transition: var(--transition);
+}
+.growth-item:hover { 
+    background-color: var(--secondary-color); 
+    color: white; 
+    transform: translateX(5px);
+    border-left-color: var(--accent-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.growth-item:hover::after {
+    opacity: 1;
+    right: 5rem;
+}
+.growth-item .title { font-weight: 500; flex: 1; }
+.growth-item .format {
+    background-color: var(--primary-color); color: white; padding: 0.25rem 0.75rem;
+    border-radius: 20px; font-size: 0.85rem; font-weight: 500;
+}
+.growth-item:hover .format { background-color: white; color: var(--secondary-color); }
+footer { background-color: var(--primary-color); color: white; text-align: center; padding: 2rem 0; margin-top: 4rem; }
+@media (max-width: 768px) {
+    header h1 { font-size: 1.8rem; }
+    nav ul { flex-direction: column; gap: 0.25rem; }
+    nav a { padding: 0.5rem 1rem; }
+    .content-section h2 { font-size: 1.5rem; }
+    .course-grid, .research-grid { grid-template-columns: 1fr; }
+}
+html { scroll-behavior: smooth; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-color); }
+::-webkit-scrollbar-thumb { background: var(--secondary-color); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>Ray 雲端教材系統</h1>
+                <p class="subtitle">raywang.com/course/main</p>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#teaching" class="nav-link active" data-section="teaching">教學</a></li>
+                    <li><a href="#campus-projects" class="nav-link" data-section="campus-projects">校內計畫</a></li>
+                    <li><a href="#industry-collaboration" class="nav-link" data-section="industry-collaboration">產學合作</a></li>
+                    <li><a href="#research" class="nav-link" data-section="research">研究</a></li>
+                    <li><a href="#self-growth" class="nav-link" data-section="self-growth">自我成長</a></li>
+                    <li><a href="#external-lectures" class="nav-link" data-section="external-lectures">校外演講</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="teaching" class="content-section active">
+            <h2>教學</h2>
+            <div class="course-grid">
+                <div class="course-card"><h3>統計相關</h3><ul class="course-list" id="statistics-list"></ul></div>
+                <div class="course-card"><h3>消費者心理學</h3><ul class="course-list" id="consumer-psychology-list"></ul></div>
+                <div class="course-card"><h3>消費者行為學</h3><ul class="course-list" id="consumer-behavior-list"></ul></div>
+                <div class="course-card"><h3>行銷學</h3><ul class="course-list" id="marketing-list"></ul></div>
+            </div>
+        </section>
+
+        <section id="campus-projects" class="content-section">
+            <h2>校內計畫</h2>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem; color: white;">110-114學年度計畫彙整統計</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 6px; text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold;">40</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">計畫總數</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 6px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold;">NT$ 3,230,150</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">經費總額（估算）</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 6px; text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold;">36</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">已完成</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 6px; text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold;">4</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">執行中</div>
+                    </div>
+                </div>
+            </div>
+            <div class="project-container" id="campus-projects-container"></div>
+        </section>
+
+        <section id="industry-collaboration" class="content-section">
+            <h2>產學合作</h2>
+            <div class="project-container" id="industry-collaboration-container">
+                <p class="placeholder">內容待補充...</p>
+            </div>
+        </section>
+
+        <section id="research" class="content-section">
+            <h2>研究</h2>
+            
+            <!-- 研究資源連結 -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div style="color: white; flex: 1;">
+                        <h3 style="margin: 0; font-size: 1.3rem; margin-bottom: 0.8rem;">📊 研究成果總覽</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 0.5rem;">
+                            <div style="background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 6px; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.3rem;">期刊論文</div>
+                                <div style="font-size: 1.8rem; font-weight: 700;">27</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 6px; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.3rem;">總引用次數</div>
+                                <div style="font-size: 1.8rem; font-weight: 700;">1,200+</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 6px; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.3rem;">H-index</div>
+                                <div style="font-size: 1.8rem; font-weight: 700;" id="h-index-value" contenteditable="true" title="點擊可編輯 H-index 數值">--</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.15); padding: 0.8rem; border-radius: 6px; backdrop-filter: blur(10px);">
+                                <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.3rem;">ResearchGate</div>
+                                <div style="font-size: 1.8rem; font-weight: 700;">934</div>
+                                <div style="font-size: 0.75rem; opacity: 0.8; margin-top: 0.2rem;">citations</div>
+                            </div>
+                        </div>
+                        <p style="margin: 0.5rem 0 0 0; opacity: 0.85; font-size: 0.85rem;">13 篇研討會論文 • 5 項國科會計畫 • 28,110 reads on RG</p>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        <a href="./王瑞研究成果彙整.xlsx" download style="background: white; color: #667eea; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
+                            <span style="font-size: 1.2rem;">📥</span>
+                            <span>下載 Excel 完整清單</span>
+                        </a>
+                        <a href="https://www.researchgate.net/profile/Ray-Wang-19/research" target="_blank" style="background: #00d084; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
+                            <span style="font-size: 1.2rem;">🔬</span>
+                            <span>ResearchGate 研究頁面</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 期刊論文 -->
+            <div style="margin-bottom: 3rem;">
+                <h3 style="color: #2c3e50; font-size: 1.8rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #3498db;">
+                    期刊論文 (Journal Papers)
+                    <button onclick="updateAllCitations()" style="float: right; background: #3498db; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                        🔄 更新引用次數
+                    </button>
+                </h3>
+                <div id="journal-papers-list"></div>
+            </div>
+            
+            <!-- 研討會論文 -->
+            <div style="margin-bottom: 3rem;">
+                <h3 style="color: #2c3e50; font-size: 1.8rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #3498db;">
+                    研討會論文 (Conference Papers)
+                </h3>
+                <div id="conference-papers-list"></div>
+            </div>
+            
+            <!-- 科技部計畫 -->
+            <div style="margin-bottom: 3rem;">
+                <h3 style="color: #2c3e50; font-size: 1.8rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #3498db;">
+                    科技部/國科會計畫
+                </h3>
+                <div id="government-projects-list"></div>
+            </div>
+            
+            <!-- 學術服務 -->
+            <div style="margin-bottom: 3rem;">
+                <h3 style="color: #2c3e50; font-size: 1.8rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid #3498db;">
+                    學術服務與審查
+                </h3>
+                <div id="academic-services-list"></div>
+            </div>
+        </section>
+
+        <section id="self-growth" class="content-section">
+            <h2>自我成長</h2>
+            <div class="growth-categories" id="growth-categories"></div>
+        </section>
+
+        <section id="external-lectures" class="content-section">
+            <h2>校外演講</h2>
+            <div class="project-container" id="external-lectures-container"></div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Ray 雲端教材系統 | raywang.com</p>
+        </div>
+    </footer>
+
+    <script>
+// 資料
+const teachingData = {
+    statistics: ["基礎統計學", "統計軟體應用 (SPSS/R)", "問卷設計與主題分析", "教學影片"],
+    consumerPsychology: ["消費心理學導論", "消費者認知與感知", "消費者態度與說服", "消費者決策過程", "品牌心理學"],
+    consumerBehavior: ["消費者行為學基礎", "消費者購買決策", "文化與消費行為", "社會影響與群體行為", "消費者滿意度研究"],
+    marketing: ["行銷管理概論", "行銷策略規劃", "數位行銷", "品牌管理", "市場研究方法", "消費者洞察分析"]
+};
+
+// YouTube 教學影片播放清單
+const teachingVideos = [
+    {
+        playlistUrl: "https://www.youtube.com/playlist?list=PLkyfuWsnmPQBDLGPxUIqn8Ou6zVEQ3qu0",
+        playlistTitle: "1132 問卷設計與主題分析-「教學輔助媒材製作獎補助」",
+        videos: [
+            {title: "00 教學輔助媒材 介紹 (3:45)", url: ""},
+            {title: "1-1 論文基本架構 (ok) 9.5", url: ""},
+            {title: "1-2 摘要 (與前言)怎麼寫？(6:44)", url: ""},
+            {title: "1-3 論文摘要和結論的區別 (6:46)", url: ""},
+            {title: "2-1 問卷 vs. 量表 的差異 (7:15)", url: ""},
+            {title: "2-2 α信度和效度 (8:40)", url: ""},
+            {title: "3-1 形成預試問卷 (8:10)", url: ""},
+            {title: "4-1 問卷發展的第一步 (9:43)", url: ""},
+            {title: "4-2-1 SPSS - 項目分析 (16:56)", url: ""},
+            {title: "4-2-2 SPSS - 項目分析 (9:14)", url: ""},
+            {title: "5-1 項目分析 - 鑑別度分析 (8:55)", url: ""},
+            {title: "5-2 因素 (效度) 分析 (8:30)", url: ""},
+            {title: "5-8 問卷發展 (5:9)", url: ""},
+            {title: "6-1 問卷要如何刪題 (6:43)", url: ""},
+            {title: "7-1 正式問卷 (17:40)", url: ""},
+            {title: "8-1 探索性 或驗證性因素分析 (7:55)", url: ""},
+            {title: "9 研案研與結果與討論 (10:47)", url: ""}
+        ]
+    },
+    {
+        playlistUrl: "https://www.youtube.com/playlist?list=PLkyfuWsnmPQBo6ZV8y40__jlUr6W1KNpe",
+        playlistTitle: "口報提要",
+        videos: [
+            {title: "口報提要教學影片", url: "https://www.youtube.com/watch?v=b01XuokVIjI"}
+        ]
+    }
+];
+
+const campusProjects = [
+    // 110學年度 (Academic Year 110) - 依時間先後排序
+    {title: "教學場域的AISAS消費模式應用- 以『消費者心理學』為例", code: "PHE1100245", agency: "教育部 高教深耕計畫", year: "110年度", period: "2021/08/01~2022/07/31", budget: "NT$ 230,000", status: "已完成"},
+    {title: "「產業問題導向專題計畫」，行動行銷真行", code: "HKU-1092-I08/110HES-1-A3-555", agency: "弘光科技大學", year: "1101學期", period: "2021/09/01~2021/11/15", budget: "NT$ 55,000", status: "已完成"},
+    {title: "「跨領域實務課程計畫」，消費者行為", code: "110HES-1-C1-508", agency: "弘光科技大學", year: "1101學期", period: "2021/09/01~2021/11/15", budget: "NT$ 43,000", status: "已完成"},
+    {title: "「設計思考問題導向實作課程計畫」，品牌行銷力", code: "HKU-1101-D02-1101設計思考課程計畫", agency: "弘光科技大學", year: "1101學期", period: "2021/05/01~2021/10/30", budget: "NT$ 90,000", status: "已完成"},
+    {title: "「教學探究社群計畫」，教學精進模式", code: "HKU-110-B27", agency: "弘光科技大學", year: "1101學期", period: "2021/05/01~2021/10/30", budget: "NT$ 30,000", status: "已完成"},
+    
+    // 111學年度 (Academic Year 111)
+    {title: "消費心理為基礎的有效教學- 建構與驗證『學思行』模式", code: "PHE1110100", agency: "教育部 高教深耕計畫", year: "111年度", period: "2022/08/01~2023/07/31", budget: "NT$ 288,650", status: "已完成"},
+    {title: "「1102 設計思考」，電商創業實務", code: "110HES-1-C1-601", agency: "弘光科技大學", year: "1102學期", period: "2022.2.8~2022.7.20", budget: "NT$ 100,000", status: "已完成"},
+    {title: "「多元專題-產業問題導向專題製作計畫」，行銷能行 實作要行", code: "HKU-1102-I01", agency: "弘光科技大學", year: "1102學期", period: "2022.3.22~2022.7.20", budget: "NT$ 50,000", status: "已完成"},
+    {title: "【(多元專題)跨域專題】，資訊教育商品化之整合模式", code: "HKU-1111-P15", agency: "弘光科技大學", year: "1111學期", period: "2022.7.28~2023.1.31", budget: "NT$ 17,500", status: "已完成"},
+    {title: "【教學探究社群/教學精進實習增能類】，消費之外的跨域精進與思考", code: "HKU-111-B40", agency: "弘光科技大學", year: "1111學期", period: "2022.8.23~2023.1.31", budget: "NT$ 25,000", status: "已完成"},
+    {title: "【磨課師課程計畫】 消費有理心選擇", code: "111HES-3-H4-603  HKU-111-MN03", agency: "弘光科技大學", year: "1111-1112學期", period: "2022.2.18~2023.7.31", budget: "NT$ 150,000", status: "已完成"},
+    {title: "【設計思考問題導向實作課程】 -新零售通路行銷", code: "111HES-1-C1-603", agency: "弘光科技大學", year: "1112學期", period: "2022.4.21~2023.7.31", budget: "NT$ 70,000", status: "已完成"},
+    
+    // 112學年度 (Academic Year 112)
+    {title: "微課之教學實踐- 探究專注力與學習成效", code: "PHE1120800", agency: "教育部 高教深耕計畫", year: "112年度", period: "2023/08/01~2024/07/31", budget: "NT$ 244,000", status: "已完成"},
+    {title: "【前導式數位教材製作暨翻轉教學】-共感消費 心力量", code: "HKU-112-A02", agency: "弘光科技大學", year: "1121學期", period: "2023.3.3- 2024.1.12(1112結束)", budget: "NT$ 45,000", status: "已完成"},
+    {title: "【設計思考問題導向實作課程】-OMO 虛實整合行銷", code: "112HES-1-A2-502", agency: "弘光科技大學", year: "1121學期", period: "2023.3.3- 2024.1.12(1112結束)", budget: "NT$ 95,000", status: "已完成"},
+    {title: "【STEM/STEAM科際整合課程】，STEAM你的自媒體", code: "112HES-1-A2-501", agency: "弘光科技大學", year: "1121學期", period: "2023.3.3- 2024.1.12(1112結束)", budget: "NT$ 108,000", status: "已完成"},
+    {title: "磨課師(消費心在 距離不再)", code: "112HES-4-D3-403  HKU-112-MN03", agency: "弘光科技大學", year: "1121學期", period: "2023.3.3- 2024.1.12", budget: "NT$ 380,000", status: "已完成"},
+    {title: "多元專題製作計畫之(產業問題導向專題- 徵想紅 網紅的第一堂課)", code: "HKU-1112-I14", agency: "弘光科技大學", year: "1121學期", period: "2023.3.3- 2023.6.25", budget: "NT$ 72,000", status: "已完成"},
+    {title: "前導式數位教材製作暨翻轉教學(勾癮- going行銷)", code: "HKU-112-A10", agency: "弘光科技大學", year: "1121學期", period: "2023.3.3- 2024.1.12(1112結束)", budget: "NT$ 36,000", status: "已完成"},
+    {title: "【STEM/STEAM科際整合課程】- 網紅 就是你", code: "112HES-1-A2-509", agency: "弘光科技大學", year: "1122學期", period: "2023.9.13- 2024.1.31(1121結束)", budget: "NT$ 102,000", status: "已完成"},
+    {title: "【設計思考問題導向實作課程】- 設計思考- 精準行銷全企劃", code: "112HES-1-A2-508", agency: "弘光科技大學", year: "1122學期", period: "2023.9.13- 2024.1.31(1121結束)", budget: "NT$ 95,000", status: "已完成"},
+    {title: "跨域T課程計畫「show off 短影音」", code: "113HES-1-A2-501", agency: "弘光科技大學", year: "1122學期", period: "2023.9.13- 2024.1.31", budget: "NT$ 72,000", status: "已完成"},
+    {title: "前導式數位教材製作- 詠唱(Prompt)你的行銷咒語", code: "HKU-113-A03", agency: "弘光科技大學", year: "1122學期", period: "2023.9.13- 2024.1.31", budget: "NT$ 36,000", status: "已完成"},
+    
+    // 113學年度 (Academic Year 113)
+    {title: "多元專題製作計畫（主題式專題）跨域AI之專題製作與學習遷移", code: "113HES-1-A1-601/HKU-1131-M01", agency: "弘光科技大學", year: "1131學期", period: "1131學期", budget: "NT$ 38,000", status: "已完成"},
+    {title: "教學探究社群(教學精進類)計畫 教學實踐與研究間之行為增強", code: "HKU-113-B54", agency: "弘光科技大學", year: "1131學期", period: "1131學期", budget: "NT$ 25,000", status: "已完成"},
+    {title: "跨域T課程- 短影音的直播商務", code: "113HES-1-A2-507", agency: "弘光科技大學", year: "1131學期", period: "1131學期", budget: "NT$ 72,000", status: "已完成"},
+    {title: "跨域T課程- 創業實務三部曲- 首部曲", code: "113HES-1-A2-508", agency: "弘光科技大學", year: "1131學期", period: "1131學期", budget: "NT$ 76,000", status: "已完成"},
+    {title: "1131 補助【磨課師課程計畫】快樂自學趣", code: "113HES-4-D3-402", agency: "弘光科技大學", year: "1131學期", period: "1131學期", budget: "NT$ 250,000", status: "已完成"},
+    {title: "【前導式數位教材製作暨翻轉教學】 從心行銷", code: "HKU-114-A01", agency: "弘光科技大學", year: "1132學期", period: "1132學期", budget: "NT$ 45,000", status: "已完成"},
+    {title: "跨域T課程-王瑞- 與美同行", code: "114HES-1-A2-501", agency: "弘光科技大學", year: "1132學期", period: "1132學期", budget: "NT$ 76,000", status: "已完成"},
+    {title: "跨域T課程- 創業實務二部曲", code: "114HES-1-A2-502", agency: "弘光科技大學", year: "1132學期", period: "1132學期", budget: "NT$ 76,000", status: "已完成"},
+    {title: "「教學輔助媒材製作獎補助」", code: "", agency: "弘光科技大學", year: "1132學期", period: "114年03月14日(五)前完成錄製", budget: "NT$ 10,000", status: "已完成"},
+    {title: "教學探究社群(教學精進實習增能類) 大學生小學堂- 遊戲增強學習之教實研前導研究", code: "HKU-114-B26", agency: "弘光科技大學", year: "1132學期", period: "1132學期", budget: "NT$ 24,000", status: "已完成"},
+    {title: "113.2學期「獎勵教師精進與創新實務教學計畫」 運用IRS精進創業課程學習動機與實務能力", code: "HKU-114-T01", agency: "弘光科技大學", year: "1132學期", period: "1132學期", budget: "NT$ 10,000", status: "已完成"},
+    
+    // 114學年度 (Academic Year 114) - 執行中
+    {title: "融入互動反饋系統與問題導向學習提升消費者系列課程之學習成效", code: "PHE1140324/ MOE-114- TPRHE-1034- 011Y1", agency: "教育部 高教深耕計畫", year: "114年度", period: "2025/08/01~2026/07/31", budget: "NT$ 258,750", status: "執行中"},
+    {title: "Stem 計畫- 妝點職涯", code: "HKU-1141-A01", agency: "弘光科技大學", year: "1141學期", period: "1141學期", budget: "NT$ 76,000", status: "執行中"},
+    {title: "Stem 計畫- 創業實務三部曲", code: "HKU-1141-A02", agency: "弘光科技大學", year: "1141學期", period: "1141學期", budget: "NT$ 80,000", status: "執行中"},
+    {title: "1141【前導式數位教材製作暨翻轉教學】 拂過消費者心裡的共感力", code: "HKU-114-A14", agency: "弘光科技大學", year: "1141學期", period: "1141學期", budget: "NT$ 45,000", status: "執行中"}
+];
+const researchData = {
+    // 期刊論文 (依時間序排列，從舊到新) - 合併所有有引用次數的論文
+    journalPapers: [
+        // 2009年
+        {no: 1, citation: "Tai, D. W. S., Hu, Y. C., Wang, R., & Chen, J. F. M. (2009). The relationships between engineering teachers' collective efficacy, student learning efficacy and learning outcomes in Taiwan's industrial vocational high schools. World Transactions on Engineering and Technology Education, 7(1), 124-128.", type: "EI", if: "", cited: 15, year: 2009},
+        {no: 2, citation: "Wang, R., Tai, D. W. S., & Hu, Y. C. (2009). Path analysis on the teaching image of engineering teachers in Taiwan. World Transactions on Engineering and Technology Education, 7(1), 119-123.", type: "EI", if: "", cited: 8, year: 2009},
+        {no: 3, citation: "Lin, Z. P., Wang, R., & Tseng, M. L. (2009). Determination of a cause and effect decision making model for leisure farm's service quality in Taiwan. WSEAS Transactions on Business and Economics, 6(1), 242-253.", type: "EI", if: "", cited: 15, year: 2009},
+        
+        // 2010年
+        {no: 4, citation: "Wang, R., Tai, D. W. S., Chen, J. S., & Yang, K. L. (2010). Holistic effectiveness of e-learning systems using fuzzy importance-performance analysis in uncertainty. International Journal of Digital Content Technology and Its Applications, 4(6), 188-200.", type: "EI", if: "", cited: 18, year: 2010},
+        
+        // 2011年
+        {no: 5, citation: "Tseng, M. L., Lan, L. W., Wang, R., Chiu, A. S. F., & Cheng, H. P. (2011). Using hybrid model to evaluate the green performance in uncertainty. Environmental Monitoring and Assessment, 175(1), 367-385.", type: "SCI", if: "1.43", cited: 104, year: 2011},
+        {no: 6, citation: "Wang, R. (2011). Cause-effect relationships and the service quality evaluation criteria of portal sites. African Journal of Business Management, 5(19), 7844-7851.", type: "EI", if: "", cited: 23, year: 2011},
+        {no: 7, citation: "Wang, R., Hsu, S. L., Lin, Y. H., & Tseng, M. L. (2011). Evaluation of customer perceptions on airline service quality in uncertainty. Procedia - Social and Behavioral Sciences, 25, 419-437.", type: "SSCI", if: "", cited: 89, year: 2011},
+        {no: 8, citation: "Wang, R., & Tseng, M. L. (2011). Evaluation of international student satisfaction using fuzzy importance-performance analysis. Procedia - Social and Behavioral Sciences, 25, 438-446.", type: "SSCI", if: "", cited: 70, year: 2011},
+        
+        // 2012年
+        {no: 9, citation: "Wang, R. (2012). The investigation of green best practices for hotels in Taiwan. Procedia-Social and Behavioral Sciences, 40, 94-98.", type: "SSCI", if: "", cited: 45, year: 2012},
+        {no: 10, citation: "Wang, R. (2012). Investigations of important and effective effects of green practices in restaurants. Procedia-Social and Behavioral Sciences, 40, 83-93.", type: "SSCI", if: "", cited: 38, year: 2012},
+        {no: 11, citation: "Clark, E. E., & Wang, R. (2012). Capturing students' voices: A hybrid approach to assure education quality in universities of technology in Taiwan. Quality Assurance in Education, 20(4), 322-340.", type: "SSCI", if: "1.3", cited: 68, year: 2012},
+        {no: 12, citation: "Wang, R., & Clark, E. E. (2012). Assuring educational quality in Taiwan's universities of technology. Journal of International Education Research, 8(1), 29-40.", type: "ABI/INFORM", if: "", cited: 35, year: 2012},
+        {no: 13, citation: "Lee, Y. J. J., Tai, D. W. S., & Wang, R. (2012). An investigation of evaluative criteria for uncertainty reduction in overseas learning. Journal of International Education Research, 8(4), 427-436.", type: "ABI/INFORM", if: "", cited: 14, year: 2012},
+        
+        // 2013年
+        {no: 14, citation: "Tseng, M. L., Wang, R., Chiu, A. S. F., & Lin, Y. H. (2013). Improving performance of green innovation practices under uncertainty. Journal of Cleaner Production, 40, 71-82.", type: "SCI", if: "5.715", cited: 48, year: 2013},
+        {no: 15, citation: "Tai, D. W. S., Hu, Y. C., Wang, R., & Chen, J. L. (2013). The visual presentation model for improving high school students' learning outcomes. Computer Applications in Engineering Education, 21(S1), E17-E31.", type: "SCI", if: "2.0", cited: 26, year: 2013},
+        
+        // 2014年
+        {no: 16, citation: "Lin, Y. H., Tseng, M. L., Chiu, A. S. F., & Wang, R. (2014). Implementation and performance evaluation of a firm's green supply chain management under uncertainty. Journal of Information and Optimization Sciences, 35(1), 15-28.", type: "EI", if: "1.5", cited: 42, year: 2014},
+        {no: 17, citation: "Wang, R. (2014). Beyond the quality of service: Exploring the evaluation criteria of airlines. Industrial Engineering & Management Systems, 13(2), 221-230.", type: "EI", if: "", cited: 3, year: 2014},
+        {no: 18, citation: "Wang, R. (2014). Evaluating Chinese tourists' service quality criteria under uncertainty. International Journal of Services and Operations Management, 18(3), 301-320.", type: "EI", if: "", cited: 16, year: 2014},
+        {no: 19, citation: "Wang, R. (2014). Factors affecting cuisine quality: Duo-theme DEMATEL method. International Journal of Services and Operations Management, 17(4), 449-467.", type: "EI", if: "", cited: 22, year: 2014},
+        {no: 20, citation: "Wang, R., & Lin, Y. H. (2014). Push-pull factors of e-learning in the hotel industry. International Journal of Contemporary Hospitality Management, 26(3), 359-380.", type: "SSCI", if: "1.8", cited: 76, year: 2014},
+        {no: 21, citation: "Tai, D. W. S., Chen, J. L., Zhang, R. C., Wang, R., & Tai, Z. Y. H. (2014). A study on constructing capability indicators for C++ learners at universities in Taiwan. Computer Applications in Engineering Education, 22(2), 263-271.", type: "SCI", if: "2.0", cited: 18, year: 2014},
+        
+        // 2015年
+        {no: 22, citation: "Wang, R. (2015). Investigation of multi-factor effect on e-learning: A student's perspective. World Transactions on Engineering and Technology Education, 13(1), 38-42.", type: "EI", if: "", cited: 1, year: 2015},
+        {no: 23, citation: "Wang, R. (2015). On culinary teaching steps from the perspective of problem-based learning. International Journal of Research Studies in Educational Technology, 4(2), 3-16.", type: "Scopus", if: "", cited: 14, year: 2015},
+        
+        // 2016年
+        {no: 24, citation: "戴文雄, 王裕德, 王瑞, & 陳嘉苓. (2016). 翻轉教學式合作學習對生活科技實作課程學習成效影響之研究. 科學教育學刊, 24(1), 57-88.", type: "TSSCI", if: "1.2", cited: 35, year: 2016},
+        {no: 25, citation: "Wang, R. (2016). Repositioning of the service quality of exquisite restaurants: Case study in Taiwan. International Journal of Organizational Innovation, 8(3), 134-152.", type: "ABI/INFORM", if: "", cited: 11, year: 2016},
+        
+        // 2017年
+        {no: 26, citation: "Tai, D. W. S., Zhang, R. C., Wang, Y. T., & Wang, R. (2017). Determining digital literacy competencies in technical senior high schools using fuzzy Delphi analysis. Journal of Educational Technology Development and Exchange, 10(1), 1-18.", type: "Scopus", if: "", cited: 9, year: 2017},
+        
+        // 2025年
+        {no: 27, citation: "王瑞, & 陳采秀. (2025). 大學教師教學意象之徑路分析. 台灣教育研究期刊, 6(6), 195-216.", type: "期刊論文", if: "", cited: 0, year: 2025}
+    ],
+    
+    // 研討會論文 (依時間序排列)
+    conferencePapers: [
+        {no: 1, citation: "Wang, R. (2011). Applied study of cognitive load in hospitality English teaching. The 2011 International Conference on Asia Pacific Business Innovation & Technology Management, Bali, Indonesia.", year: 2011},
+        {no: 2, citation: "Wang, R., Hung, L. M., Chen, J. L., & Tai, D. W. S. (2011). A hybrid approach to investigate central kitchen green performance in uncertainty. 2011 Conference on Education and Education Management (EEM 2011), June 25-26.", year: 2011},
+        {no: 3, citation: "Tai, D. W. S., Chen, J. L., & Wang, R. (2011). Research on fuzzy linguistic evaluation in e-learning using AHP & TOPSIS based on analysis of scientific materials. 2011 International Conference on Teaching Materials, Education and Information Technology (TMEI 2011), Wuhan, China.", year: 2011},
+        {no: 4, citation: "Wang, R., Chen, J. S., & Hu, T. C. (2011). A study of the competence-based abilities of cadres in student associations and clubs: An application of the fuzzy importance-performance analysis method. International Conference on Social Sciences and Society (ICSSS 2011), Shanghai.", year: 2011},
+        {no: 5, citation: "Tai, D. W. S., Chen, J. L., Chang, R. C., & Wang, R. (2012). An empirical analysis of the preference in choosing accommodation for business hotel customers. 2012 International Science & Research and Social Management Conference.", year: 2012},
+        {no: 6, citation: "Tai, D. W. S., Hu, Y. C., Wang, R., & Chen, J. L. (2012). What is the impact of teacher self-efficacy on the student learning outcome? 3rd WIETE Annual Conference on Engineering and Technology Education 2012, Pattaya, Thailand.", year: 2012},
+        {no: 7, citation: "Tai, D. W., Hu, Y. C., Wang, R., Zhang, R. C., & Chen, J. L. (2013). The visual presentation model for improving high school students' learning outcomes. The 7th International Multi-Conference on Society, Cybernetics and Informatics: IMSCI 2013, Orlando, Florida, USA.", year: 2013},
+        {no: 8, citation: "Wang, R., & Chiu, A. (2013). Evaluation of customer perceptions on airline service quality in uncertainty. The 15th International Roundtable on Asia Pacific Business Innovation & Technology Management Conference.", year: 2013},
+        {no: 9, citation: "Wang, R. (2014). A multi-pillar DEMATEL approach to examine critical factors affecting a fine dining restaurant. International Society for Business Innovation and Technology Management Conference (ISBITM).", year: 2014},
+        {no: 10, citation: "Tai, D. W. S., & Wang, R. (2015). An empirical analysis of the preference in choosing accommodation for business hotel customers. The 16th International Society for Business Innovation and Technology Management Conference.", year: 2015},
+        {no: 11, citation: "王瑞. (2016). 美味偏好之屬性關係研究：料理美味與感動服務孰重. 2016銘傳國際觀光研討會- 迎向觀光休憩產業未來發展、變革與挑戰, 台北市, 台灣.", year: 2016},
+        {no: 12, citation: "王瑞. (2016). 消費者各種感知在美食決策中的作用. 2016 第五屆工程與科技教育學術研討會(The 5th Conference on Engineering and Technology Education).", year: 2016},
+        {no: 13, citation: "Wang, R. (2016). Eating with eyes: Assessing the importance of the visual perception of consumers. 1st International Conference on Business Management.", year: 2016}
+    ],
+    
+    // 科技部/國科會計畫
+    governmentProjects: [
+        {no: 1, citation: "無所不在的主動推薦式適性數位學習系統-以資料庫管理系統為例 (100-2511-S-241-001)", year: "100年度"},
+        {no: 2, citation: "問題導向混成合作學習對大專院校資訊相關科系學生學習困難與學習成效之研究-以C++程式設計課程為例 (101-2511-S-241-001-MY2)", year: "101-102年度"},
+        {no: 3, citation: "提升餐飲美學素養之研究－以科技大學餐旅系中式餐飲相關課程為例 (MOST 103-2511-S-241-001-MY2)", year: "103-104年度"},
+        {no: 4, citation: "最適不同性別和遊戲經驗學習者的虛擬學習平台之開發研究 (MOST 105-2511-S-005-004-MY3)", year: "105-107年度"},
+        {no: 5, citation: "中式盤飾美學應用與教學－以科技大學餐旅系中式料理實務與實習相關課程為例 (MOST 106-2511-S-241-001)", year: "106年度"}
+    ],
+    
+    // 審查與服務
+    academicServices: [
+        {category: "期刊審查", items: [
+            "Tourism Management (SCI, IF: 2.554) - Reviewer",
+            "Industrial Engineering & Management Systems (IF: 0.141) - Reviewer",
+            "International Journal of Technology and Engineering Education - Reviewer"
+        ]},
+        {category: "學會服務", items: [
+            "台灣工程教育與管理學會：理事 (96.3~99.2)、副總幹事 (99.3~100.2)、監事 (100.3~103.2)、常務監事 (103.3~)",
+            "中華觀光管理學會：永久會員 (95年5月加入)",
+            "台灣感性資訊學會：永久會員 (100年11月加入)"
+        ]},
+        {category: "政府委員", items: [
+            "96-100年度勞工教育學苑委託經營管理相關設施查核委員與營運績效評估委員 (主辦單位：勞動部勞動力發展署中彰投分署)",
+            "企業人力資源提升計劃、充電起飛計劃審查委員 (106年~)"
+        ]}
+    ]
+};
+const externalLectures = [
+    {title: "美感力學變革基礎營", organization: "校外演講", date: "2024/12/9", description: ""},
+    {title: "美感投資", organization: "校外演講", date: "2024/9/6", description: ""},
+    {title: "學習負智慧（博愛 美發）", organization: "校外演講", date: "2023/5/10", description: ""},
+    {title: "2023(1112) 高中博 做課", organization: "校外演講", date: "2023/1/17", description: ""},
+    {title: "1122 墊、寧僑泰", organization: "校外演講", date: "2023/12/15", description: ""},
+    {title: "01 南馬公益講座", organization: "校外演講", date: "2022/3/26", description: ""},
+    {title: "生涯規劃", organization: "校外演講", date: "2021/4/27", description: ""},
+    {title: "職涯規劃", organization: "校外演講", date: "2021/12/3", description: ""},
+    {title: "教授數位轉大學", organization: "校外演講", date: "2021/9/15", description: ""},
+    {title: "高中無恆耕計畫 基科大", organization: "校外演講", date: "2021/9/5", description: ""},
+    {title: "2021 臺大附中", organization: "校外演講", date: "2021/4/12", description: ""},
+    {title: "2021 1022 墊明", organization: "校外演講", date: "2021/9/8", description: ""},
+    {title: "2021 0514 教育嘉中", organization: "校外演講", date: "2021/4/29", description: ""},
+    {title: "2021 0408 大墊明中", organization: "校外演講", date: "2021/3/19", description: ""},
+    {title: "南馬：教育（1091 墊科明千）", organization: "校外演講", date: "2020/12/7", description: ""},
+    {title: "2016 0118 僑泰", organization: "校外演講", date: "2019/11/9", description: ""},
+    {title: "04 於及 異節（基朝）基科大", organization: "校外演講", date: "2019/11/8", description: ""},
+    {title: "01 成功的畫片（中興至霞 2019 0516）ok", organization: "校外演講", date: "2019/9/27", description: ""}
+];
+const selfGrowthData = {
+    "經濟與金融": [
+        {title: "何帆報告2018-2019", format: "EPUB", file: "06 GitHub 資料夾/何帆报告2018-2019.epub", description: "年度經濟趨勢觀察與分析"},
+        {title: "通往財富自由之路", format: "EPUB", file: "06 GitHub 資料夾/通往财富自由之路.epub", description: "財富管理與個人成長指南"},
+        {title: "陸蓉行為金融學", format: "EPUB", file: "06 GitHub 資料夾/陆蓉行为金融学.epub", description: "行為金融學理論與實務"},
+        {title: "徐瑾經濟學大師30講", format: "PDF", file: "06 GitHub 資料夾/徐瑾经济学大师30讲.pdf", description: "經濟學理論與大師思想"}
+    ],
+    "產品與商業思維": [
+        {title: "梁寧 - 產品思維30講", format: "Markdown", file: "06 GitHub 資料夾/梁宁-产品思维30讲.md", description: "產品經理必修課程"},
+        {title: "梁寧 - 產品思維30講", format: "PDF", file: "06 GitHub 資料夾/梁宁产品思维30讲.pdf", description: "產品經理必修課程（PDF版本）"},
+        {title: "梁寧 - 增長思維30講", format: "Markdown", file: "06 GitHub 資料夾/梁宁-增长思维30讲.md", description: "企業增長策略"},
+        {title: "跟華杉學品牌營銷", format: "PDF", file: "06 GitHub 資料夾/跟华杉学品牌营销.pdf", description: "品牌營銷實戰指南"}
+    ],
+    "認知與思維訓練": [
+        {title: "趨勢的力量", format: "Markdown", file: "06 GitHub 資料夾/趋势的力量.md", description: "掌握未來趨勢"},
+        {title: "30天認知訓練營", format: "PDF", file: "06 GitHub 資料夾/30天认知训练营.pdf", description: "系統化認知能力提升"},
+        {title: "30天認知訓練營2019", format: "PDF", file: "06 GitHub 資料夾/30天认知训练营2019.pdf", description: "2019年度認知訓練"},
+        {title: "老喻的人生算法課", format: "PDF", file: "06 GitHub 資料夾/老喻的人生算法课.pdf", description: "理性決策與人生算法"},
+        {title: "郝廣才創意思維課", format: "PDF", file: "06 GitHub 資料夾/郝广才创意思维课.pdf", description: "激發創意思維"}
+    ],
+    "人文與哲學": [
+        {title: "熊逸佛學50講", format: "EPUB", file: "06 GitHub 資料夾/熊逸佛学50讲.epub", description: "深入淺出解讀佛學智慧"},
+        {title: "熊逸唐詩50講", format: "PDF", file: "06 GitHub 資料夾/熊逸唐诗50讲.pdf", description: "唐詩鑑賞與文化解讀"},
+        {title: "靳大成論語通讀（上）", format: "PDF", file: "06 GitHub 資料夾/靳大成论语通读上.pdf", description: "論語經典解讀上冊"},
+        {title: "靳大成論語通讀（下）", format: "PDF", file: "06 GitHub 資料夾/靳大成论语通读下.pdf", description: "論語經典解讀下冊"}
+    ],
+    "歷史與社會": [
+        {title: "中國史綱50講", format: "PDF", file: "06 GitHub 資料夾/中国史纲50讲.pdf", description: "中國歷史脈絡梳理"},
+        {title: "徐棄郁美國簡史30講", format: "PDF", file: "06 GitHub 資料夾/徐弃郁美国简史30讲.pdf", description: "美國歷史發展簡述"},
+        {title: "大國簡史英國篇", format: "PDF", file: "06 GitHub 資料夾/大国简史英国篇.pdf", description: "英國歷史與文明"},
+        {title: "社會學專題50講", format: "PDF", file: "06 GitHub 資料夾/社会学专题50讲.pdf", description: "社會學核心議題探討"}
+    ],
+    "心理學與自我成長": [
+        {title: "劉嘉心理學基礎30講", format: "PDF", file: "06 GitHub 資料夾/刘嘉心理学基础30讲.pdf", description: "心理學基礎理論"},
+        {title: "自我發展心理學", format: "PDF", file: "06 GitHub 資料夾/自我发展心理学.pdf", description: "個人心理發展與成長"},
+        {title: "精力管理的高手", format: "PDF", file: "06 GitHub 資料夾/怎样成为精力管理的高手.pdf", description: "時間與精力管理技巧"}
+    ],
+    "職場與人際關係": [
+        {title: "熊太行職場關係課", format: "PDF", file: "06 GitHub 資料夾/熊太行职场关系课.pdf", description: "職場人際關係處理"},
+        {title: "關係攻略201612-201702", format: "PDF", file: "06 GitHub 資料夾/关系攻略201612-201702.pdf", description: "人際關係策略（一）"},
+        {title: "關係攻略201703-05", format: "PDF", file: "06 GitHub 資料夾/关系攻略201703-05.pdf", description: "人際關係策略（二）"},
+        {title: "關係攻略201706-08", format: "PDF", file: "06 GitHub 資料夾/关系攻略201706-08.pdf", description: "人際關係策略（三）"},
+        {title: "北大領導力", format: "PDF", file: "06 GitHub 資料夾/北大领导力.pdf", description: "領導力培養與實踐"}
+    ],
+    "自然科學與技術": [
+        {title: "生命科學50講", format: "PDF", file: "06 GitHub 資料夾/生命科学50讲.pdf", description: "生命科學基礎知識"},
+        {title: "薄世寧醫學通識50講", format: "PDF", file: "06 GitHub 資料夾/薄世宁医学通识50讲.pdf", description: "醫學常識與健康知識"},
+        {title: "仇子龍基因科學20講", format: "PDF", file: "06 GitHub 資料夾/仇子龙基因科学20讲.pdf", description: "基因科學前沿知識"},
+        {title: "高爽天文學通識30講", format: "PDF", file: "06 GitHub 資料夾/高爽天文学通识30讲.pdf", description: "天文學基礎與宇宙探索"},
+        {title: "卓克的密碼學課", format: "PDF", file: "06 GitHub 資料夾/卓克的密码学课.pdf", description: "密碼學原理與應用"}
+    ],
+    "萬維鋼精英日課系列": [
+        {title: "精英日課201608-201610", format: "PDF", file: "06 GitHub 資料夾/万维钢精英日课201608-201610.pdf", description: "精英思維與知識分享（一）"},
+        {title: "精英日課201611-201701", format: "PDF", file: "06 GitHub 資料夾/万维钢精英日课201611-201701.pdf", description: "精英思維與知識分享（二）"},
+        {title: "精英日課201702-04", format: "PDF", file: "06 GitHub 資料夾/万维钢精英日课201702-04.pdf", description: "精英思維與知識分享（三）"}
+    ],
+    "古典超級個體系列": [
+        {title: "超級個體201610-12", format: "PDF", file: "06 GitHub 資料夾/古典超级个体201610-12.pdf", description: "個人成長與職業發展（一）"},
+        {title: "超級個體201704-06", format: "PDF", file: "06 GitHub 資料夾/古典超级个体201704-06.pdf", description: "個人成長與職業發展（二）"},
+        {title: "超級個體201707-10", format: "PDF", file: "06 GitHub 資料夾/古典超级个体201707-10.pdf", description: "個人成長與職業發展（三）"}
+    ],
+    "伯凡日知錄系列": [
+        {title: "伯凡日知錄201610-201612", format: "PDF", file: "06 GitHub 資料夾/伯凡日知录201610-201612.pdf", description: "商業智慧與思考（一）"},
+        {title: "伯凡日知錄201701-201703", format: "PDF", file: "06 GitHub 資料夾/伯凡日知录201701-201703.pdf", description: "商業智慧與思考（二）"},
+        {title: "伯凡日知錄201704-201706", format: "PDF", file: "06 GitHub 資料夾/伯凡日知录201704-201706.pdf", description: "商業智慧與思考（三）"},
+        {title: "伯凡日知錄201707-201710", format: "PDF", file: "06 GitHub 資料夾/伯凡日知录201707-201710.pdf", description: "商業智慧與思考（四）"}
+    ],
+    "槽邊往事系列": [
+        {title: "槽邊往事2016", format: "PDF", file: "06 GitHub 資料夾/槽边往事2016.pdf", description: "和菜頭的觀察與思考（2016）"},
+        {title: "槽邊往事2017", format: "PDF", file: "06 GitHub 資料夾/槽边往事2017.pdf", description: "和菜頭的觀察與思考（2017）"}
+    ]
+};
+
+// 更新引用次數功能
+function updateAllCitations() {
+    if (confirm('此功能將連線至 Google Scholar 搜尋並更新所有論文的引用次數。\n\n注意：\n1. 需要網路連線\n2. 更新過程可能需要幾分鐘\n3. 實際功能需要後端支援或使用 Google Scholar API\n\n目前僅為示範功能，是否繼續？')) {
+        alert('更新引用次數功能說明：\n\n要實現此功能，有以下幾種方式：\n\n1. 使用 Google Scholar API（需要申請）\n2. 使用 Crossref API（免費，但不是所有論文都有）\n3. 使用 Semantic Scholar API（免費）\n4. 手動更新資料\n\n建議：定期（如每季）手動在 Google Scholar 查詢並更新引用次數到資料中。\n\n範例搜尋連結已為您準備，請點選「確定」後查看第一篇論文。');
+        
+        // 示範：開啟第一篇論文的 Google Scholar 搜尋
+        const firstPaper = researchData.journalPapers[0];
+        const searchQuery = encodeURIComponent(firstPaper.citation.split('.')[0]); // 使用作者和年份搜尋
+        window.open(`https://scholar.google.com/scholar?q=${searchQuery}`, '_blank');
+    }
+}
+
+// 顯示 YouTube 教學影片播放清單
+function showVideoPlaylist() {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.8); z-index: 10000;
+        display: flex; justify-content: center; align-items: center;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    const content = document.createElement('div');
+    content.style.cssText = `
+        background: white; border-radius: 12px; padding: 2rem;
+        max-width: 1000px; width: 90%; max-height: 85vh; overflow-y: auto;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    `;
+    
+    // 計算總影片數
+    const totalVideos = teachingVideos.reduce((sum, playlist) => sum + playlist.videos.length, 0);
+    
+    content.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid #3498db; padding-bottom: 1rem;">
+            <h2 style="color: #2c3e50; margin: 0;">📺 教學影片播放清單</h2>
+            <button onclick="this.closest('[style*=fixed]').remove()" style="background: #e74c3c; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 1rem;">✕ 關閉</button>
+        </div>
+        
+        <div style="background: #ecf0f1; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <h3 style="color: #2c3e50; margin: 0 0 0.5rem 0; font-size: 1.1rem;">📚 總計</h3>
+            <p style="color: #7f8c8d; margin: 0; font-size: 0.95rem;">${teachingVideos.length} 個播放清單 • 共 ${totalVideos} 個影片</p>
+        </div>
+        
+        ${teachingVideos.map((playlist, pIndex) => `
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; border: 2px solid #e9ecef;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="color: #2c3e50; margin: 0; font-size: 1.2rem;">
+                        ${pIndex + 1}. ${playlist.playlistTitle}
+                    </h3>
+                    <span style="background: #3498db; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                        ${playlist.videos.length} 影片
+                    </span>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <a href="${playlist.playlistUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #ff0000; color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.3s;">
+                        <span>▶️</span>
+                        <span>在 YouTube 開啟播放清單</span>
+                    </a>
+                </div>
+                
+                <div style="display: grid; gap: 0.6rem;">
+                    ${playlist.videos.map((video, vIndex) => `
+                        <div style="background: white; padding: 0.8rem; border-radius: 6px; border-left: 3px solid #3498db; transition: all 0.3s; cursor: pointer;" 
+                             onclick="window.open('${video.url || playlist.playlistUrl}', '_blank')"
+                             onmouseover="this.style.background='#e8f4f8'; this.style.transform='translateX(5px)'" 
+                             onmouseout="this.style.background='white'; this.style.transform='translateX(0)'">
+                            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                <div style="background: #3498db; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; font-size: 0.85rem;">
+                                    ${vIndex + 1}
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="color: #2c3e50; font-weight: 500; font-size: 0.95rem;">${video.title}</div>
+                                </div>
+                                ${video.url ? '<div style="color: #3498db; font-size: 0.85rem;">🔗</div>' : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('')}
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+            <p style="margin: 0; color: #856404; font-size: 0.9rem;">
+                💡 <strong>提示：</strong>點擊播放清單按鈕前往 YouTube 觀看完整內容，或點擊個別影片直接觀看。
+            </p>
+        </div>
+    `;
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    // 點擊背景關閉
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
+
+// 快速更新單篇論文引用次數
+function updateCitation(paperIndex) {
+    const paper = researchData.journalPapers[paperIndex];
+    const newCited = prompt(`請輸入「${paper.citation.substring(0, 50)}...」的最新引用次數：`, paper.cited);
+    if (newCited !== null && !isNaN(newCited)) {
+        researchData.journalPapers[paperIndex].cited = parseInt(newCited);
+        // 重新載入期刊論文列表
+        document.getElementById('journal-papers-list').innerHTML = '';
+        loadJournalPapers();
+        alert('引用次數已更新！');
+    }
+}
+
+// 載入期刊論文（獨立函數，方便重新載入）
+function loadJournalPapers() {
+    researchData.journalPapers.forEach((paper, index) => {
+        const div = document.createElement('div');
+        div.className = 'project-item';
+        div.style.position = 'relative';
+        
+        // 根據引用次數決定顏色：超過12次用深綠色，未滿12次用橘色
+        const citationColor = paper.cited >= 12 ? '#27ae60' : '#f39c12';
+        const citationBgColor = paper.cited >= 12 ? '#27ae60' : '#e67e22';
+        
+        div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="flex: 1;">
+                    <h4 style="color: #2c3e50; margin-bottom: 0.5rem; font-size: 1rem;">
+                        [${paper.no}] ${paper.citation}
+                    </h4>
+                    <div style="color: #7f8c8d; font-size: 0.9rem; margin-top: 0.5rem;">
+                        <span style="background: #3498db; color: white; padding: 0.2rem 0.6rem; border-radius: 3px; margin-right: 0.5rem;">${paper.type}</span>
+                        ${paper.if ? `<span style="background: #e74c3c; color: white; padding: 0.2rem 0.6rem; border-radius: 3px; margin-right: 0.5rem;">IF: ${paper.if}</span>` : ''}
+                        <span style="background: ${citationBgColor}; color: white; padding: 0.2rem 0.6rem; border-radius: 3px; margin-right: 0.5rem; cursor: pointer;" onclick="updateCitation(${index})" title="點擊更新引用次數">
+                            引用: ${paper.cited}次 ✏️
+                        </span>
+                        <span style="color: #95a5a6;">(${paper.year})</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('journal-papers-list').appendChild(div);
+    });
+}
+
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+    // 導航
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            link.classList.add('active');
+            document.getElementById(link.getAttribute('data-section')).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+    
+    // 載入教學
+    teachingData.statistics.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        
+        // 如果是「教學影片」或「問卷設計與主題分析」項目，添加點擊事件
+        if (item === "教學影片" || item === "問卷設計與主題分析") {
+            li.style.cursor = 'pointer';
+            li.style.color = '#3498db';
+            li.style.fontWeight = '600';
+            li.title = '點擊查看 YouTube 播放清單';
+            
+            li.addEventListener('click', () => {
+                showVideoPlaylist();
+            });
+        }
+        
+        document.getElementById('statistics-list').appendChild(li);
+    });
+    teachingData.consumerPsychology.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        document.getElementById('consumer-psychology-list').appendChild(li);
+    });
+    teachingData.consumerBehavior.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        document.getElementById('consumer-behavior-list').appendChild(li);
+    });
+    teachingData.marketing.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        document.getElementById('marketing-list').appendChild(li);
+    });
+    
+    // 載入校內計畫（依據APA第七版格式）
+    campusProjects.forEach(project => {
+        const div = document.createElement('div');
+        div.className = 'project-item';
+        
+        // APA格式：執行年份、計畫名稱、計畫編號、補助機構、執行期間、經費、執行情形
+        const apaFormat = `
+            <div style="line-height: 1.8;">
+                <h3 style="color: #2c3e50; margin-bottom: 0.8rem; font-size: 1.2rem;">
+                    ${project.title}
+                </h3>
+                <div style="color: #34495e; font-size: 0.95rem;">
+                    <p style="margin: 0.3rem 0;"><strong>執行年份：</strong>${project.year}</p>
+                    ${project.code ? `<p style="margin: 0.3rem 0;"><strong>計畫編號：</strong><span style="color: #3498db; font-family: monospace;">${project.code}</span></p>` : ''}
+                    <p style="margin: 0.3rem 0;"><strong>補助機構：</strong>${project.agency}</p>
+                    ${project.period ? `<p style="margin: 0.3rem 0;"><strong>執行期間：</strong><span style="color: #7f8c8d;">${project.period}</span></p>` : ''}
+                    <p style="margin: 0.3rem 0;"><strong>經費總額：</strong><span style="color: #e74c3c; font-weight: 600;">${project.budget}</span></p>
+                    <p style="margin: 0.3rem 0;"><strong>執行情形：</strong><span style="color: ${project.status === '已完成' ? '#27ae60' : '#f39c12'}; font-weight: 600;">${project.status}</span></p>
+                </div>
+            </div>
+        `;
+        
+        div.innerHTML = apaFormat;
+        document.getElementById('campus-projects-container').appendChild(div);
+    });
+    
+    // 載入研究資料
+    // 1. 載入期刊論文
+    loadJournalPapers();
+    
+    // 2. 載入研討會論文
+    researchData.conferencePapers.forEach((paper, index) => {
+        const div = document.createElement('div');
+        div.className = 'project-item';
+        div.innerHTML = `
+            <h4 style="color: #2c3e50; margin-bottom: 0.5rem; font-size: 1rem;">
+                [${paper.no}] ${paper.citation}
+            </h4>
+            <div style="color: #7f8c8d; font-size: 0.9rem; margin-top: 0.5rem;">
+                <span style="color: #95a5a6;">(${paper.year})</span>
+            </div>
+        `;
+        document.getElementById('conference-papers-list').appendChild(div);
+    });
+    
+    // 3. 載入科技部計畫
+    researchData.governmentProjects.forEach((project, index) => {
+        const div = document.createElement('div');
+        div.className = 'project-item';
+        div.innerHTML = `
+            <h4 style="color: #2c3e50; margin-bottom: 0.5rem; font-size: 1rem;">
+                [${project.no}] ${project.citation}
+            </h4>
+            <div style="color: #7f8c8d; font-size: 0.9rem; margin-top: 0.5rem;">
+                <span style="background: #9b59b6; color: white; padding: 0.2rem 0.6rem; border-radius: 3px;">${project.year}</span>
+            </div>
+        `;
+        document.getElementById('government-projects-list').appendChild(div);
+    });
+    
+    // 4. 載入學術服務
+    researchData.academicServices.forEach(service => {
+        const div = document.createElement('div');
+        div.style.marginBottom = '2rem';
+        div.innerHTML = `
+            <h4 style="color: #3498db; font-size: 1.2rem; margin-bottom: 1rem;">${service.category}</h4>
+            <ul style="list-style: disc; margin-left: 2rem; line-height: 1.8;">
+                ${service.items.map(item => `<li style="margin-bottom: 0.5rem;">${item}</li>`).join('')}
+            </ul>
+        `;
+        document.getElementById('academic-services-list').appendChild(div);
+    });
+    
+    // 載入自我成長
+    Object.keys(selfGrowthData).forEach(category => {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'growth-category';
+        const categoryTitle = document.createElement('h3');
+        categoryTitle.textContent = category;
+        categoryDiv.appendChild(categoryTitle);
+        const itemsContainer = document.createElement('div');
+        itemsContainer.className = 'growth-items';
+        selfGrowthData[category].forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'growth-item';
+            itemDiv.innerHTML = `
+                <div class="title">${item.title}</div>
+                <div class="format">${item.format}</div>
+            `;
+            itemDiv.style.cursor = 'pointer';
+            itemDiv.title = `點擊開啟：${item.description}`;
+            
+            itemDiv.addEventListener('click', () => {
+                // 構建文件的完整路徑（相對於 HTML 檔案）
+                const filePath = item.file;
+                
+                // 直接開啟檔案
+                window.open(filePath, '_blank');
+            });
+            
+            itemsContainer.appendChild(itemDiv);
+        });
+        categoryDiv.appendChild(itemsContainer);
+        document.getElementById('growth-categories').appendChild(categoryDiv);
+    });
+    
+    // 載入校外演講
+    externalLectures.forEach(lecture => {
+        const div = document.createElement('div');
+        div.className = 'project-item';
+        div.innerHTML = `<h3>${lecture.title} <span style="color: #3498db; font-size: 0.9rem;">(${lecture.date})</span></h3><p><strong>單位：</strong>${lecture.organization}<br>${lecture.description}</p>`;
+        document.getElementById('external-lectures-container').appendChild(div);
+    });
+});
+    </script>
+</body>
+</html>

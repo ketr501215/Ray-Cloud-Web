@@ -1,0 +1,292 @@
+.uploadContainer {
+    width: 100%;
+    margin: 1.5rem 0;
+}
+
+.dropZone {
+    width: 100%;
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    padding: 3rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.dropZone:hover,
+.dragging {
+    border-color: var(--accent-color);
+    background: rgba(99, 102, 241, 0.05);
+    transform: scale(1.01);
+}
+
+.dragging {
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.uploading {
+    cursor: default;
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Typography & Icons */
+.icon {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    transition: color var(--transition-fast);
+}
+
+.dropZone:hover .icon,
+.dragging .icon {
+    color: var(--accent-color);
+    transform: translateY(-4px);
+}
+
+.primaryText {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.secondaryText {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* States */
+.idleState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: opacity var(--transition-fast);
+}
+
+.uploadingState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Progress Ring Animation */
+.progressRing {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.circularChart {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    max-height: 250px;
+}
+
+.circleBg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 2.5;
+}
+
+.circle {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke: var(--accent-color);
+    transition: stroke-dasharray 0.3s ease;
+}
+
+.percentageText {
+    position: absolute;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Staging / Confirmation UI */
+.stagingContainer {
+    width: 100%;
+    margin: 1.5rem 0;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    animation: fadeIn 0.4s ease;
+}
+
+.stagingTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.stagingSubtitle {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.stagedList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.stagedItem {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.stagedItemInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    overflow: hidden;
+}
+
+.stagedItemName {
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.folderBadge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--accent-color);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.stagedItemSize {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.stagedItemControls {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.stagedSelect,
+.stagedInput {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.stagedSelect {
+    width: 30%;
+    cursor: pointer;
+}
+
+.stagedSelect option {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.stagedInput {
+    width: 70%;
+}
+
+.stagedSelect:focus,
+.stagedInput:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.stagingActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 1.5rem;
+}
+
+.btnCancel {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btnCancel:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.btnConfirm {
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btnConfirm:hover:not(:disabled) {
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+    transform: translateY(-1px);
+}
+
+.btnConfirm:disabled,
+.btnCancel:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
