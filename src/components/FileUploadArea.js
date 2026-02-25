@@ -110,12 +110,10 @@ export default function FileUploadArea({ onUploadComplete }) {
         setIsUploading(true);
         setUploadProgress(10);
 
-        const progressInterval = setInterval(() => {
-            setUploadProgress(prev => Math.min(prev + 15, 90));
-        }, 200);
-
         try {
-            const uploadPromises = files.map(file => {
+            const results = [];
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
                 const formData = new FormData();
                 formData.append('file', file);
 
@@ -127,19 +125,24 @@ export default function FileUploadArea({ onUploadComplete }) {
                     }
                 }
 
-                return uploadFile(formData);
-            });
+                // Force Next.js to send as a separate request to bypass Vercel 4.5MB limit
+                await new Promise(res => setTimeout(res, 10));
 
-            const results = await Promise.all(uploadPromises);
+                const result = await uploadFile(formData);
+                results.push(result);
 
-            clearInterval(progressInterval);
+                // Update progress based on completion
+                const currentProgress = 10 + Math.floor((i + 1) / files.length * 80);
+                setUploadProgress(currentProgress);
+            }
+
             setUploadProgress(100);
 
             // Check if any uploads failed and grab the error message
             const failedUploads = results.filter(r => !r.success);
             if (failedUploads.length > 0) {
                 const errorMsg = failedUploads[0].error || 'Unknown server error';
-                alert(`Upload failed: ${errorMsg}`);
+                alert(`Upload failed for some files: ${errorMsg}`);
             }
 
             // Filter out any failed uploads, keep only the stagedFile objects
@@ -189,7 +192,6 @@ export default function FileUploadArea({ onUploadComplete }) {
                 setIsUploading(false);
             }
         } catch (err) {
-            clearInterval(progressInterval);
             console.error('File Upload Error:', err);
             alert(`File transfer failed: ${err.message}`);
             setIsUploading(false);
