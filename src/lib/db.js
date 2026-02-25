@@ -1,36 +1,48 @@
-import { createClient } from '@libsql/client';
+import { createClient } from '@libsql/client/web'; // VERCEL SAFE VERSION
 import path from 'path';
-import fs from 'fs';
-
-// Initialize connection. Use a persistent file in the project root by default.
-const localDbPath = path.join(process.cwd(), 'cloud.db');
 
 // If TURSO_DATABASE_URL is provided, connect to Turso. Otherwise, use local file.
-// The file URL MUST start with "file:" for @libsql/client to recognize it as a local SQLite file.
-const dbUrl = process.env.TURSO_DATABASE_URL || `file:${localDbPath}`;
+// For Vercel, it MUST be Turso because /web doesn't support local files. Local dev requires @libsql/client
+const dbUrl = process.env.TURSO_DATABASE_URL || `file:cloud.db`;
 const dbAuthToken = process.env.TURSO_AUTH_TOKEN;
 
-const db = createClient({
-    url: dbUrl,
-    authToken: dbAuthToken,
-});
+// Create a mock or the real client depending on environment
+let db;
+try {
+    if (process.env.TURSO_DATABASE_URL) {
+        db = createClient({
+            url: dbUrl,
+            authToken: dbAuthToken,
+        });
+    } else {
+        // Local fallback if running locally
+        const { createClient: createLocalClient } = require('@libsql/client');
+        db = createLocalClient({
+            url: `file:${path.join(process.cwd(), 'cloud.db')}`
+        });
+    }
+} catch (e) {
+    console.error("Failed to initialize database client", e);
+    // Export a fake db that throws so the page can catch it
+    db = {
+        execute: async () => { throw new Error("DB Client failed to initialize: " + e.message); },
+        executeMultiple: async () => { throw new Error("DB Client failed to initialize: " + e.message); }
+    };
+}
 
-// Since @libsql/client is async, we can't initialize the schema automatically on import.
-// For local file usage, we can provide an initialization function if needed, 
-// but for Turso, the schema should ideally be migrated independently.
 export async function initDb() {
     // Only auto-initialize schema if we are using the local file database
     if (!process.env.TURSO_DATABASE_URL) {
-        const schemaPath = path.join(process.cwd(), 'src/lib/schema.sql');
-        if (fs.existsSync(schemaPath)) {
-            const schema = fs.readFileSync(schemaPath, 'utf8');
-            try {
-                // @libsql/client executeMultiple allows running multiple statements separated by ';'
+        try {
+            const fs = require('fs');
+            const schemaPath = path.join(process.cwd(), 'src/lib/schema.sql');
+            if (fs.existsSync(schemaPath)) {
+                const schema = fs.readFileSync(schemaPath, 'utf8');
                 await db.executeMultiple(schema);
                 console.log('Database schema initialized on local SQLite.');
-            } catch (err) {
-                console.error('Failed to initialize local database schema:', err);
             }
+        } catch (err) {
+            console.error('Failed to initialize local database schema:', err);
         }
     }
 }
