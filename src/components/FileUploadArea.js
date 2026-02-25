@@ -12,6 +12,7 @@ export default function FileUploadArea({ onUploadComplete }) {
     const [isConfirming, setIsConfirming] = useState(false); // UI state for the staging modal
     const [preSelectedCategory, setPreSelectedCategory] = useState("未分類"); // Sidebar pre-selection
     const fileInputRef = useRef(null);
+    const folderInputRef = useRef(null);
 
     const handleDrag = (e) => {
         e.preventDefault();
@@ -134,6 +135,13 @@ export default function FileUploadArea({ onUploadComplete }) {
             clearInterval(progressInterval);
             setUploadProgress(100);
 
+            // Check if any uploads failed and grab the error message
+            const failedUploads = results.filter(r => !r.success);
+            if (failedUploads.length > 0) {
+                const errorMsg = failedUploads[0].error || 'Unknown server error';
+                alert(`Upload failed: ${errorMsg}`);
+            }
+
             // Filter out any failed uploads, keep only the stagedFile objects
             const successfulUploads = results
                 .filter(r => r.success)
@@ -156,10 +164,14 @@ export default function FileUploadArea({ onUploadComplete }) {
                                 setUploadProgress(0);
                                 window.location.reload(); // Quick explicit refresh to show new files immediately in dashboard
                             }, 500);
+                        } else {
+                            alert(`Auto-confirm failed: ${result.error || 'Server error'}`);
+                            setIsUploading(false);
+                            setUploadProgress(0);
                         }
                     } catch (e) {
                         console.error('Auto-confirm Error:', e);
-                        alert('Failed to automatically save the folder contents.');
+                        alert(`Failed to confirm folder: ${e.message}`);
                         setIsUploading(false);
                         setUploadProgress(0);
                     } finally {
@@ -179,10 +191,11 @@ export default function FileUploadArea({ onUploadComplete }) {
         } catch (err) {
             clearInterval(progressInterval);
             console.error('File Upload Error:', err);
-            alert('Failed to upload one or more files.');
+            alert(`File transfer failed: ${err.message}`);
             setIsUploading(false);
         } finally {
             if (fileInputRef.current) fileInputRef.current.value = "";
+            if (folderInputRef.current) folderInputRef.current.value = "";
         }
     };
 
@@ -292,11 +305,22 @@ export default function FileUploadArea({ onUploadComplete }) {
                 </select>
             </div>
 
+            {/* Standard File Input */}
+            <input
+                type="file"
+                multiple
+                ref={fileInputRef}
+                onChange={handleChange}
+                className={styles.hiddenInput}
+                style={{ display: 'none' }}
+            />
+
+            {/* Folder Input */}
             <input
                 type="file"
                 multiple
                 webkitdirectory="true"
-                ref={fileInputRef}
+                ref={folderInputRef}
                 onChange={handleChange}
                 className={styles.hiddenInput}
                 style={{ display: 'none' }}
@@ -308,7 +332,6 @@ export default function FileUploadArea({ onUploadComplete }) {
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
             >
                 {!isUploading ? (
                     <div className={styles.idleState}>
@@ -317,8 +340,24 @@ export default function FileUploadArea({ onUploadComplete }) {
                             <polyline points="17 8 12 3 7 8"></polyline>
                             <line x1="12" y1="3" x2="12" y2="15"></line>
                         </svg>
-                        <p className={styles.primaryText}>Click or drag to upload files & folders</p>
-                        <p className={styles.secondaryText}>Folders will be recursively scanned for files</p>
+                        <p className={styles.primaryText}>Drag & drop files or folders here</p>
+
+                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', justifyContent: 'center' }}>
+                            <button
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); fileInputRef.current?.click(); }}
+                                className="btn btn-secondary"
+                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+                            >
+                                Browse Files
+                            </button>
+                            <button
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); folderInputRef.current?.click(); }}
+                                className="btn btn-secondary"
+                                style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+                            >
+                                Browse Folders
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <div className={styles.uploadingState}>

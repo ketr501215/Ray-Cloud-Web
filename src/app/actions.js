@@ -40,48 +40,52 @@ export async function deleteContent(id) {
 // Local FS imports are removed since we are using Vercel Blob
 
 export async function uploadFile(formData) {
-    const file = formData.get('file');
-    const folderName = formData.get('folder_name');
-
-    if (!file) {
-        throw new Error('No file provided');
-    }
-
-    // Generate unique filename
-    const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const rawFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filename = `${uniquePrefix}-${rawFileName}`;
-
-    // Upload to Vercel Blob
-    // We use put() which returns the uploaded blob URL immediately
-    let blob;
     try {
-        // Only require BLOB_READ_WRITE_TOKEN if we're actually trying to upload
-        blob = await put(filename, file, {
-            access: 'public',
-        });
-    } catch (err) {
-        console.error('Vercel Blob Upload Failed:', err);
-        throw new Error('Failed to upload file to Blob storage. Ensure BLOB_READ_WRITE_TOKEN is set.');
-    }
+        const file = formData.get('file');
+        const folderName = formData.get('folder_name');
 
-    // Default to Uncategorized for semantic tracking
-    let autoCategory = '未分類';
-
-    // RETURN staged data instead of inserting into DB immediately
-    return {
-        success: true,
-        stagedFile: {
-            filename: filename,            // Storing the unique filename pattern
-            original_name: file.name,
-            mime_type: file.type || blob.contentType || 'application/octet-stream',
-            size: file.size,
-            url: blob.url,                 // Using the permanent Blob URL
-            category: autoCategory,
-            description: '',
-            folder_name: folderName || null // Pass back the folder name if it exists
+        if (!file) {
+            return { success: false, error: 'No file provided' };
         }
-    };
+
+        // Generate unique filename
+        const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const rawFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const filename = `${uniquePrefix}-${rawFileName}`;
+
+        // Upload to Vercel Blob
+        // We use put() which returns the uploaded blob URL immediately
+        let blob;
+        try {
+            blob = await put(filename, file, {
+                access: 'public',
+            });
+        } catch (err) {
+            console.error('Vercel Blob Upload Failed:', err);
+            return { success: false, error: `Blob Upload Failed: ${err.message}` };
+        }
+
+        // Default to Uncategorized for semantic tracking
+        let autoCategory = '未分類';
+
+        // RETURN staged data instead of inserting into DB immediately
+        return {
+            success: true,
+            stagedFile: {
+                filename: filename,            // Storing the unique filename pattern
+                original_name: file.name,
+                mime_type: file.type || blob.contentType || 'application/octet-stream',
+                size: file.size,
+                url: blob.url,                 // Using the permanent Blob URL
+                category: autoCategory,
+                description: '',
+                folder_name: folderName || null // Pass back the folder name if it exists
+            }
+        };
+    } catch (globalErr) {
+        console.error('Global Upload Error:', globalErr);
+        return { success: false, error: `Server Error: ${globalErr.message}` };
+    }
 }
 
 export async function confirmUploads(stagedFiles) {
