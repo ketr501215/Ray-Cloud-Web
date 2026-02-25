@@ -110,6 +110,17 @@ export default function FileUploadArea({ onUploadComplete }) {
         setIsUploading(true);
         setUploadProgress(10);
 
+        // Vercel Serverless Functions have a strict 4.5MB request limit.
+        const MAX_SIZE_BYTES = 4.5 * 1024 * 1024;
+        const oversizedFiles = files.filter(f => f.size > MAX_SIZE_BYTES);
+
+        if (oversizedFiles.length > 0) {
+            alert(`Oops! Vercel 的免費伺服器限制單一檔案不能超過 4.5MB。\n\n這個資料夾裡面有 ${oversizedFiles.length} 個檔案過大（例如: ${oversizedFiles[0].name}），請移除這些大檔案後再上傳！`);
+            setIsUploading(false);
+            setUploadProgress(0);
+            return;
+        }
+
         try {
             const results = [];
             for (let i = 0; i < files.length; i++) {
