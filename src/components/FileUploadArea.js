@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { uploadFile, confirmUploads } from '@/app/actions';
+import { confirmUploads } from '../app/actions';
+import { upload } from '@vercel/blob/client';
 import styles from './FileUploadArea.module.css';
 
 export default function FileUploadArea({ onUploadComplete }) {
@@ -110,37 +111,49 @@ export default function FileUploadArea({ onUploadComplete }) {
         setIsUploading(true);
         setUploadProgress(10);
 
-        // Vercel Serverless Functions have a strict 4.5MB request limit.
-        const MAX_SIZE_BYTES = 4.5 * 1024 * 1024;
-        const oversizedFiles = files.filter(f => f.size > MAX_SIZE_BYTES);
-
-        if (oversizedFiles.length > 0) {
-            alert(`Oops! Vercel 的免費伺服器限制單一檔案不能超過 4.5MB。\n\n這個資料夾裡面有 ${oversizedFiles.length} 個檔案過大（例如: ${oversizedFiles[0].name}），請移除這些大檔案後再上傳！`);
-            setIsUploading(false);
-            setUploadProgress(0);
-            return;
-        }
-
         try {
             const results = [];
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                const formData = new FormData();
-                formData.append('file', file);
 
-                // If it's from a folder, extract the root folder name
+                // Extract folder name if applicable
+                let folderName = null;
                 if (file.webkitRelativePath) {
                     const parts = file.webkitRelativePath.split('/');
                     if (parts.length > 1) {
-                        formData.append('folder_name', parts[0]);
+                        folderName = parts[0];
                     }
                 }
 
-                // Force Next.js to send as a separate request to bypass Vercel 4.5MB limit
-                await new Promise(res => setTimeout(res, 10));
+                // Generate safe unique filename
+                const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+                const rawFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+                const filename = `${uniquePrefix}-${rawFileName}`;
 
-                const result = await uploadFile(formData);
-                results.push(result);
+                // Upload directly from browser to Vercel Blob (Bypasses 4.5MB Serverless limit)
+                let blob;
+                try {
+                    blob = await upload(filename, file, {
+                        access: 'public',
+                        handleUploadUrl: '/api/upload',
+                    });
+                } catch (err) {
+                    throw new Error(`Blob Upload Failed: ${err.message}`);
+                }
+
+                // Construct stagedFile locally, mimicking what server action used to return
+                const stagedFile = {
+                    filename: filename,
+                    original_name: file.name,
+                    mime_type: file.type || blob.contentType || 'application/octet-stream',
+                    size: file.size,
+                    url: blob.url,
+                    category: '未分類',
+                    description: '',
+                    folder_name: folderName
+                };
+
+                results.push({ success: true, stagedFile });
 
                 // Update progress based on completion
                 const currentProgress = 10 + Math.floor((i + 1) / files.length * 80);
