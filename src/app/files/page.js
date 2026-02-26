@@ -60,7 +60,7 @@ export default async function AllFilesPage() {
                                     const CardWrapper = isFolder ? 'div' : 'a';
                                     const wrapperProps = isFolder
                                         ? { className: `glass-panel animate-fade-in animate-delay-${Math.min((idx % 3) + 1, 3)}`, style: { padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', position: 'relative' } }
-                                        : { href: file.url, target: '_blank', rel: 'noopener noreferrer', className: `glass-panel animate-fade-in animate-delay-${Math.min((idx % 3) + 1, 3)}`, style: { padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', textDecoration: 'none', position: 'relative' } };
+                                        : { href: `/api/download/${file.id}?t=${Date.now()}`, download: file.original_name, target: '_blank', rel: 'noopener noreferrer', className: `glass-panel animate-fade-in animate-delay-${Math.min((idx % 3) + 1, 3)}`, style: { padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', textDecoration: 'none', position: 'relative' } };
 
                                     return (
                                         <CardWrapper key={file.id || idx} {...wrapperProps}>

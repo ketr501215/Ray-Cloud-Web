@@ -3,6 +3,7 @@
 import db from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { put, del } from '@vercel/blob';
+import { getCurrentSemester } from '@/lib/semester';
 
 export async function createContent(formData) {
     const title = formData.get('title');
@@ -11,15 +12,16 @@ export async function createContent(formData) {
     const content = formData.get('content') || '';
     const progress = parseInt(formData.get('progress') || '0', 10);
     const status = formData.get('status') || 'draft';
+    const semester = getCurrentSemester();
 
     if (!title || !type) {
         throw new Error('Title and Type are required');
     }
 
     const result = await db.execute({
-        sql: `INSERT INTO content (title, type, description, content, status, progress, updated_at) 
-              VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
-        args: [title, type, description, content, status, progress]
+        sql: `INSERT INTO content (title, type, description, content, status, progress, semester, updated_at) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+        args: [title, type, description, content, status, progress, semester]
     });
 
     // Revalidate the home page to show the new content immediately
@@ -67,6 +69,7 @@ export async function uploadFile(formData) {
 
         // Default to Uncategorized for semantic tracking
         let autoCategory = '未分類';
+        const semester = getCurrentSemester();
 
         // RETURN staged data instead of inserting into DB immediately
         return {
@@ -79,7 +82,8 @@ export async function uploadFile(formData) {
                 url: blob.url,                 // Using the permanent Blob URL
                 category: autoCategory,
                 description: '',
-                folder_name: folderName || null // Pass back the folder name if it exists
+                folder_name: folderName || null, // Pass back the folder name if it exists
+                semester: semester
             }
         };
     } catch (globalErr) {
@@ -94,14 +98,14 @@ export async function confirmUploads(stagedFiles) {
     }
 
     const sqlStatement = `
-        INSERT INTO files (filename, original_name, mime_type, size, url, category, description, folder_name) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO files (filename, original_name, mime_type, size, url, category, description, folder_name, semester) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     // Try to batch execute for "@libsql/client"
     const batchStatements = stagedFiles.map(f => ({
         sql: sqlStatement,
-        args: [f.filename, f.original_name, f.mime_type, f.size, f.url, f.category, f.description, f.folder_name]
+        args: [f.filename, f.original_name, f.mime_type, f.size, f.url, f.category, f.description, f.folder_name, f.semester || getCurrentSemester()]
     }));
 
     try {
@@ -135,6 +139,37 @@ export async function updateFileCategory(fileId, newCategory) {
     } catch (err) {
         console.error('Update category failed', err);
         return { success: false, error: 'Failed to update category.' };
+    }
+}
+
+export async function updateFileDeadline(id, deadline, type = 'file') {
+    if (!id) {
+        throw new Error('ID is required.');
+    }
+
+    const table = type === 'content' ? 'content' : 'files';
+    const parsedDeadline = deadline ? deadline : null; // Can be null to clear
+
+    try {
+        const result = await db.execute({
+            sql: `UPDATE ${table} SET deadline = ? WHERE id = ?`,
+            args: [parsedDeadline, id]
+        });
+
+        if (result.rowsAffected > 0) {
+            revalidatePath('/');
+            if (type === 'file') {
+                // To be safe, revalidate all category pages as we don't know the file's category easily here
+                // without an extra lookup
+                revalidatePath('/category/[name]', 'page');
+            }
+            return { success: true };
+        } else {
+            return { success: false, error: 'Record not found.' };
+        }
+    } catch (err) {
+        console.error('Update deadline failed', err);
+        return { success: false, error: 'Failed to update deadline.' };
     }
 }
 

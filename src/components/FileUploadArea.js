@@ -125,15 +125,12 @@ export default function FileUploadArea({ onUploadComplete }) {
                     }
                 }
 
-                // Generate safe unique filename
-                const uniquePrefix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                const rawFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                const filename = `${uniquePrefix}-${rawFileName}`;
-
                 // Upload directly from browser to Vercel Blob (Bypasses 4.5MB Serverless limit)
+                // We pass `file.name` directly so Vercel Blob maintains the correct internal naming.
+                // Vercel Blob automatically handles collisions by appending a unique hash to the generated URL.
                 let blob;
                 try {
-                    blob = await upload(filename, file, {
+                    blob = await upload(file.name, file, {
                         access: 'public',
                         handleUploadUrl: '/api/upload',
                     });
@@ -142,9 +139,11 @@ export default function FileUploadArea({ onUploadComplete }) {
                 }
 
                 // Construct stagedFile locally, mimicking what server action used to return
+                // VERY IMPORTANT: Keep original_name pristine from the user's OS file object
+                // Vercel Blob generates a unique URL, but we will use the clean name for DB tracking
                 const stagedFile = {
-                    filename: filename,
-                    original_name: file.name,
+                    filename: file.name, // The pristine original name from user's OS
+                    original_name: file.name, // The pristine original name from user's OS
                     mime_type: file.type || blob.contentType || 'application/octet-stream',
                     size: file.size,
                     url: blob.url,
